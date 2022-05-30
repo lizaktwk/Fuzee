@@ -13,6 +13,7 @@ using Fusee.Engine.Gui;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static Fusee.Engine.Core.Input;
 
 namespace FuseeApp
 {
@@ -23,19 +24,72 @@ namespace FuseeApp
         private SceneRendererForward _sceneRenderer;
         private Transform _baseTransform;
 
+        //roter Arm - body
+        private Transform _bodyTransform;
 
-       SceneContainer CreateScene()
+        //grüner Arm - upperArm
+        private Transform _upperArmTransform;
+
+        //blauer Arm - foreArm
+        private Transform _foreArmTransform;
+
+        //blau Erster Finger - blau
+        private Transform _firstFingerTransform;
+
+         // Zweiter Finger - gelb
+        private Transform _secondFingerTransform;
+
+         // Dritter Finger - lila
+        private Transform _thirdFingerTransform;
+
+
+        SceneContainer CreateScene()
         {
             // Initialize transform components that need to be changed inside "RenderAFrame"
             _baseTransform = new Transform
             {
-                Rotation = new float3(0, 0, 0),
-                Scale = new float3(1, 1, 1),
                 Translation = new float3(0, 0, 0)
             };
 
+            _bodyTransform = new Transform //red
+            {
+                Translation = new float3(0, 6, 0),
+                Rotation = new float3(0, 0.2f, 0)
+            };
+
+            _upperArmTransform = new Transform //green
+            {
+                Translation = new float3(2, 4, 0),
+                Rotation = new float3(0, 0, 0)
+            };
+
+            _foreArmTransform = new Transform //blue
+            {
+                Translation = new float3(2, 2, 0),
+                Rotation = new float3(0, 0, 0)
+            };
+
+            _firstFingerTransform = new Transform //blue
+            {
+                Translation = new float3(2, 2, 0),
+                Rotation = new float3(0, 0, 0)
+            };
+
+            _secondFingerTransform = new Transform //yellow
+            {
+                Translation = new float3(-1, 6, 0),
+                Rotation = new float3(0, 0, 0)
+            };
+
+            _thirdFingerTransform = new Transform //violet
+            {
+                Translation = new float3(-2, 6, 1),
+                Rotation = new float3(0, 0, 0)
+            };
+
+
             // Setup the scene graph
-            return new SceneContainer
+             return new SceneContainer
             {
                 Children = 
                 {
@@ -46,7 +100,7 @@ namespace FuseeApp
                         {
                             new Transform
                             {
-                                Translation = new float3(0, 10, -50),
+                                Translation = new float3(0, 16, -50),
                             },
                             new Camera(ProjectionMethod.Perspective, 5, 100, M.PiOver4) 
                             {
@@ -57,21 +111,138 @@ namespace FuseeApp
 
                     new SceneNode
                     {
-                        Name = "Robot",
+                        Name = "Base (grey)",
                         Components = 
                         {
-                            // TRANSFORM COMPONENT
                             _baseTransform,
-
-                            // SHADER EFFECT COMPONENT
                             MakeEffect.FromDiffuseSpecular((float4) ColorUint.LightGrey),
-
-                            // MESH COMPONENT
                             SimpleMeshes.CreateCuboid(new float3(10, 2, 10))
+                        },
+                        Children =
+                        {
+                            new SceneNode
+                            {
+                                Name = "Body (red)",
+                                Components = 
+                                {
+                                    _bodyTransform,
+                                    MakeEffect.FromDiffuseSpecular((float4) ColorUint.IndianRed),
+                                    SimpleMeshes.CreateCuboid(new float3(2, 10, 2))
+                                },
+                                Children =
+                                {
+                                    new SceneNode
+                                    {
+                                        Name = "UpperArm (green)",
+                                        Components = 
+                                        {
+                                            _upperArmTransform,
+                                        },
+                                        Children = 
+                                        {
+                                            new SceneNode
+                                            {
+                                                Components =
+                                                {
+                                                    new Transform { Translation = new float3(0, 4, 0)},
+                                                    MakeEffect.FromDiffuseSpecular((float4) ColorUint.ForestGreen),
+                                                    SimpleMeshes.CreateCuboid(new float3(2, 10, 2))
+                                                },
+                                                Children = {
+                                                    new SceneNode
+                                                    {
+                                                        Name = "ForeArm (blue)",
+                                                        Components =
+                                                        {
+                                                            _foreArmTransform,
+                                                        },
+                                                        Children =
+                                                        {
+                                                            new SceneNode
+                                                            {
+                                                                Components =
+                                                                {
+                                                                    new Transform {Translation = new float3(0, 4, 0)},
+                                                                    MakeEffect.FromDiffuseSpecular((float4) ColorUint.CadetBlue),
+                                                                    SimpleMeshes.CreateCuboid(new float3(2,10,2))
+                                                                },
+                                                                //finger
+                                                                Children = {
+                                                                    new SceneNode
+                                                                    {
+                                                                        Name = "FirstFinger(blue)",
+                                                                        Components =
+                                                                        {
+                                                                            _firstFingerTransform,
+                                                                        },
+                                                                        Children =
+                                                                        {
+                                                                            new SceneNode
+                                                                            {
+                                                                                Components =
+                                                                                {
+                                                                                    new Transform {Translation = new float3(-1, 6, 0)},
+                                                                                    MakeEffect.FromDiffuseSpecular((float4)ColorUint.Blue),
+                                                                                    SimpleMeshes.CreateCuboid(new float3(1,6,2))
+                                                                                }
+                                                                            },
+                                                                            new SceneNode
+                                                                            {
+                                                                                Name = "secondFinger",
+                                                                                Components =
+                                                                                {
+                                                                                    _secondFingerTransform
+                                                                                },
+                                                                                Children =
+                                                                                {
+                                                                                    new SceneNode
+                                                                                    {
+                                                                                        Components =
+                                                                                        {
+                                                                                        new Transform {Translation = new float3(-1, 0, 1)},
+                                                                                        MakeEffect.FromDiffuseSpecular((float4)ColorUint.Yellow),
+                                                                                        SimpleMeshes.CreateCuboid(new float3(2,6,1))
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            new SceneNode
+                                                                            {
+                                                                                Name = "thirdFinger",
+                                                                                Components =
+                                                                                {
+                                                                                    _thirdFingerTransform
+                                                                                },
+                                                                                Children = 
+                                                                                {
+                                                                                    new SceneNode
+                                                                                    {
+                                                                                        Components =
+                                                                                        {
+                                                                                        new Transform {Translation = new float3(-1, 0, -1)},
+                                                                                        MakeEffect.FromDiffuseSpecular((float4)ColorUint.Violet),
+                                                                                        SimpleMeshes.CreateCuboid(new float3(1,6,2)) 
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             };
+                    
         }
 
 
@@ -96,8 +267,50 @@ namespace FuseeApp
             // Render the scene on the current render context
             _sceneRenderer.Render(RC);
 
+
+            //Bedienung
+            //Pfeiltasten links/rechts dreht rot um y-Achse
+            float bodyRot = _bodyTransform.Rotation.y + Keyboard.LeftRightAxis * DeltaTime * 4; 
+            _bodyTransform.Rotation = new float3(0, bodyRot, 0); 
+
+            //Pfeiltasten hoch/runter rotiert grün um x-Achse
+            float upperArmRot = _upperArmTransform.Rotation.x + Keyboard.UpDownAxis * DeltaTime * 4; 
+            _upperArmTransform.Rotation = new float3(upperArmRot, 0, 0);
+
+            //Tasten W/S rotiert blau um x-Achse
+            float foreArmRot = _foreArmTransform.Rotation.x - Keyboard.WSAxis * DeltaTime *2; 
+            _foreArmTransform.Rotation = new float3(foreArmRot, 0, 0);
+
+
+
+            //Greifzangen auf und zu --- habe ich leider einfach nicht hinbekommen :/
+
+              float rotAngleFirst = _firstFingerTransform.Rotation.z;
+             if (Keyboard.IsKeyDown(KeyCodes.Space)) {
+                  if(rotAngleFirst <= 0) {
+                      rotAngleFirst = 3*M.Pi/2;
+                  } else {
+                      rotAngleFirst = -M.Pi/8;
+                 }          
+              }
+             
+              _firstFingerTransform.Rotation = new float3(0, 0, rotAngleFirst); //blau
+              _thirdFingerTransform.Rotation = new float3(0, 0, -rotAngleFirst); //lila
+            
+
+             float rotAngleSecond= _secondFingerTransform.Rotation.x;
+             if (Keyboard.IsKeyDown(KeyCodes.Space) && _secondFingerTransform.Rotation.x <= 3f) {
+                 if(rotAngleSecond <= 0) {
+                     rotAngleSecond = 3*M.Pi/2;
+                 } else {
+                     rotAngleSecond = -M.Pi/8;
+                 }              
+             }
+             _secondFingerTransform.Rotation = new float3(rotAngleSecond, 0, 0); //gelb
+
+
             // Swap buffers: Show the contents of the backbuffer (containing the currently rendered frame) on the front buffer.
             Present();
         }
-   }
+    }
 }
